@@ -52,6 +52,11 @@
         button:hover {
             background-color: #45a049;
         }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #999;
+        }
         .links {
             text-align: center;
             margin-top: 20px;
@@ -74,7 +79,7 @@
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required>
         </div>
-        <button type="submit">Sign In</button>
+        <button id="signinButton" type="submit">Sign In</button>
     </form>
     <div class="links">
         <a href="signup.html">Don't have an account? Sign Up</a><br>
@@ -88,6 +93,10 @@
         
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        const signinButton = document.getElementById('signinButton');
+        
+        // Disable button while processing
+        signinButton.disabled = true;
         
         try {
             const response = await fetch('/auth/signin', {
@@ -105,12 +114,15 @@
                 
                 alert('Signed in successfully!');
                 window.location.href = 'index.html';
+                signinButton.disabled = false;
             } else {
                 const error = await response.text();
                 alert('Error: ' + error);
+                signinButton.disabled = false;
             }
         } catch (error) {
             alert('Error: ' + error);
+            signinButton.disabled = false;
         }
     });
 </script>

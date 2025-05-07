@@ -52,6 +52,11 @@
         button:hover {
             background-color: #45a049;
         }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #999;
+        }
         .links {
             text-align: center;
             margin-top: 20px;
@@ -78,7 +83,7 @@
             <label for="confirmPassword">Confirm Password</label>
             <input type="password" id="confirmPassword" name="confirmPassword" required>
         </div>
-        <button type="submit">Sign Up</button>
+        <button id="signupButton" type="submit">Sign Up</button>
     </form>
     <div class="links">
         <a href="signin.html">Already have an account? Sign In</a><br>
@@ -93,11 +98,15 @@
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
+        const signupButton = document.getElementById('signupButton');
         
         if (password !== confirmPassword) {
             alert('Passwords do not match!');
             return;
         }
+        
+        // Disable button while processing
+        signupButton.disabled = true;
         
         try {
             const response = await fetch('/auth/signup', {
@@ -111,12 +120,15 @@
             if (response.ok) {
                 alert('Account created successfully! Please sign in.');
                 window.location.href = 'signin.html';
+                signupButton.disabled = false;
             } else {
                 const error = await response.text();
                 alert('Error: ' + error);
+                signupButton.disabled = false;
             }
         } catch (error) {
             alert('Error: ' + error);
+            signupButton.disabled = false;
         }
     });
 </script>
