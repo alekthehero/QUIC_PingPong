@@ -88,7 +88,13 @@ public class PingController {
         pingOutputStream.write("ping".getBytes());
         pingOutputStream.close();
 
-        return pingInputStream.readNBytes(4);
+        byte[] response;
+        try {
+            response = pingInputStream.readAllBytes();
+        } catch (Exception e) {
+            return "No response received".getBytes();
+        }
+        return response;
     }
 
     private byte[] handleUnreliableConnection(QuicClientConnection client, String token) throws Exception {

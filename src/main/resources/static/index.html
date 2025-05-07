@@ -10,6 +10,7 @@
             margin: 0;
             padding: 20px;
         }
+
         .auth-links a {
             margin-left: 10px;
             text-decoration: none;
@@ -18,9 +19,11 @@
             padding: 5px 10px;
             border-radius: 3px;
         }
+
         h1 {
             margin-top: 20px;
         }
+
         .user-display {
             background-color: #333;
             color: white;
@@ -29,9 +32,11 @@
             margin-bottom: 15px;
             display: none; /* Hidden by default */
         }
+
         .welcome-msg {
             font-weight: bold;
         }
+
         .logout-btn {
             background-color: #f44336;
             color: white;
@@ -41,96 +46,111 @@
             cursor: pointer;
             margin-left: 10px;
         }
+
         .auth-warning {
             color: #f44336;
             margin-bottom: 10px;
             font-weight: bold;
             display: none; /* Hidden by default */
         }
-            </style>
-        </head>
-        <body>
-        <div class="auth-links">
-            <a href="signin.html">Sign In</a>
-            <a href="signup.html">Sign Up</a>
-        </div>
-        <h1>QUIC Ping Demo</h1>
-        
-        <div id="userDisplay" class="user-display">
-            <span class="welcome-msg">Welcome, <span id="displayUsername"></span>!</span>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
-        
-        <div id="authWarning" class="auth-warning">
-            You need to sign in to use the QUIC ping functionality
-        </div>
-        
-        <button onclick="doPing('reliable')">Ping Reliable</button>
-        <button onclick="doPing('unreliable')">Ping Unreliable</button>
-        <pre id="output"></pre>
-        <script>
-            // Check for authentication on page load
-            document.addEventListener('DOMContentLoaded', function() {
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<div class="auth-links">
+    <a href="signin.html">Sign In</a>
+    <a href="signup.html">Sign Up</a>
+</div>
+<h1>QUIC Ping Demo</h1>
+
+<div id="userDisplay" class="user-display">
+    <span class="welcome-msg">Welcome, <span id="displayUsername"></span>!</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div id="authWarning" class="auth-warning">
+    You need to sign in to use the QUIC ping functionality
+</div>
+
+<button id="reliableBtn" onclick="doPing('reliable')">Ping Reliable</button>
+<button id="unreliableBtn" onclick="doPing('unreliable')">Ping Unreliable</button>
+<pre id="output"></pre>
+<script>
+    // Check for authentication on page load
+    document.addEventListener('DOMContentLoaded', function () {
         checkAuth();
-            });
-            
-            function checkAuth() {
+    });
+
+    function checkAuth() {
         const token = localStorage.getItem('authToken');
         const username = localStorage.getItem('username');
-        
+
         if (token && username) {
             // User is authenticated
             document.getElementById('userDisplay').style.display = 'block';
             document.getElementById('displayUsername').textContent = username;
             document.getElementById('authWarning').style.display = 'none';
-            
+
             // Hide sign in/sign up links
             document.querySelector('.auth-links').style.display = 'none';
         } else {
             // User is not authenticated
             document.getElementById('userDisplay').style.display = 'none';
             document.getElementById('authWarning').style.display = 'block';
-            
+
             // Show sign in/sign up links
             document.querySelector('.auth-links').style.display = 'block';
         }
-            }
-            
-            function logout() {
+    }
+
+    function logout() {
         localStorage.removeItem('authToken');
         localStorage.removeItem('username');
         checkAuth();
         document.getElementById('output').textContent = '';
-            }
-            
-            async function doPing(mode) {
+    }
+
+    async function doPing(mode) {
         const token = localStorage.getItem('authToken');
-        
+
         if (!token) {
             document.getElementById('output').textContent = 'Please sign in to use this feature.';
             return;
         }
-        
+
+        // Disable both buttons while waiting for response
+        const reliableBtn = document.getElementById('reliableBtn');
+        const unreliableBtn = document.getElementById('unreliableBtn');
+        reliableBtn.disabled = true;
+        unreliableBtn.disabled = true;
+
         try {
             const res = await fetch(`/ping?mode=${mode}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            
+
             if (res.status === 401) {
                 // Unauthorized - token expired or invalid
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('username');
                 checkAuth();
                 document.getElementById('output').textContent = 'Your session has expired. Please sign in again.';
-                return;
+            } else {
+                const text = await res.text();
+                document.getElementById('output').textContent = text;
             }
-            
-            const text = await res.text();
-            document.getElementById('output').textContent = text;
         } catch (error) {
             document.getElementById('output').textContent = `Error: ${error.message}`;
+        } finally {
+            // Re-enable both buttons regardless of success or failure
+            reliableBtn.disabled = false;
+            unreliableBtn.disabled = false;
         }
     }
 </script>
