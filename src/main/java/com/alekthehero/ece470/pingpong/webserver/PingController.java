@@ -56,7 +56,6 @@ public class PingController {
 
     private QuicClientConnection createQuicClient(boolean reliable) throws SocketException, UnknownHostException {
         QuicClientConnection.Builder builder = QuicClientConnection.newBuilder()
-                .uri(URI.create(quicHost + ":" + quicPort))
                 .applicationProtocol("nebula")
                 .noServerCertificateCheck()
                 .host(quicHost)
