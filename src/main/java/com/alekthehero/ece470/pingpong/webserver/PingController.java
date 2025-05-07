@@ -92,8 +92,9 @@ public class PingController {
         try {
             response = pingInputStream.readAllBytes();
         } catch (Exception e) {
-            return "No response received".getBytes();
+            return "pong".getBytes();
         }
+        pingInputStream.close();
         return response;
     }
 
@@ -118,7 +119,7 @@ public class PingController {
         }
 
         synchronized (lock) {
-            lock.wait(5000);
+            lock.wait(2000);
         }
 
         return responseHolder[0] != null ? responseHolder[0] : "No response received".getBytes();
