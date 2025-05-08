@@ -92,7 +92,7 @@ public class PingController {
         try {
             response = pingInputStream.readAllBytes();
         } catch (Exception e) {
-            return "pong".getBytes();
+            return "Malformed message recieved".getBytes();
         }
         pingInputStream.close();
         return response;
